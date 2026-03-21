@@ -1,9 +1,10 @@
 <!--
-  🐜 Ant Numeric Tool
-  ant_v1.0.html
+  🐜 Ant Numeric Tool [ant]
+  ant_v1.1.1.html
 
-  v1.0  2026.03.20  初回リリース：兵隊アリ孵化逆算・スライダー式リワード設定・レベル記憶・日英対応
-  v1.1  2026.03.21  チャトラ「見やすい」テーマに変更・リワード手入力にK/Mトグル+クリアボタン追加・「必要孵化数(予想)」に変更
+  v1.0    2026.03.20  初回リリース：兵隊アリ孵化逆算・スライダー式リワード設定・レベル記憶・日英対応
+  v1.1    2026.03.21  チャトラ「見やすい」テーマに変更・リワード手入力にK/Mトグル+クリアボタン追加・「必要孵化数(予想)」に変更
+  v1.1.1  2026.03.21  [ant]表記追加・lang_btnをJPに・「予測」に変更・残り必要ポイント表示・アクティブ目盛り強調
 -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -142,7 +143,7 @@ body {
   transition: color 0.15s;
 }
 .snap-tick:hover { color: var(--text); }
-.snap-tick.active { color: var(--accent); font-weight: 700; }
+.snap-tick.active { color: var(--accent); font-weight: 700; font-size: 11px; }
 
 .reward-val {
   font-family: var(--font-mono);
@@ -364,6 +365,7 @@ body {
       <div class="progress-track">
         <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
+      <div id="progress-remain-row" style="text-align:right;font-size:12px;color:var(--text-dim);margin-top:4px;font-family:var(--font-mono);"></div>
     </div>
   </div>
 
@@ -392,7 +394,7 @@ body {
 
   <!-- 結果 -->
   <div class="result-card">
-    <div class="result-label" data-key="required">必要孵化数(予想)</div>
+    <div class="result-label" data-key="required">必要孵化数(予測)</div>
     <div class="result-num" id="result-num">—</div>
     <div class="result-unit" data-key="units" id="result-unit">匹</div>
     <div class="result-sub" id="result-sub"></div>
@@ -400,7 +402,7 @@ body {
 
 </div>
 
-<div class="version-label">Mar 21 '26 🐜 v1.1</div>
+<div class="version-label">Mar 21 '26 🐜 v1.1.1</div>
 
 <script>
 // ============================================================
@@ -413,7 +415,7 @@ const LANG = {
     level_setting: '兵隊アリ レベル',
     pts_per_unit:  'pt / 匹',
     manual_input:  '手入力',
-    required:      '必要孵化数(予想)',
+    required:      '必要孵化数(予測)',
     units:         '匹',
     achieved:      '達成済み',
     remain:        '残り',
@@ -426,7 +428,7 @@ const LANG = {
     level_setting: 'Soldier Ant Level',
     pts_per_unit:  'pt / ant',
     manual_input:  'Manual',
-    required:      'Required Hatches (est.)',
+    required:      'Required Hatches (predicted)',
     units:         'ants',
     achieved:      'Achieved!',
     remain:        'Remaining',
@@ -602,6 +604,10 @@ function calcAll() {
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-current').textContent = fmtNum(pts) + ' pt';
   document.getElementById('progress-target').textContent  = L.progress_of + ' ' + fmtNum(rewardTarget) + ' pt';
+  const remainRow = document.getElementById('progress-remain-row');
+  if (remainRow) {
+    remainRow.textContent = remain > 0 ? `残り ${fmtNum(remain)} pt` : '';
+  }
 
   const numEl  = document.getElementById('result-num');
   const subEl  = document.getElementById('result-sub');
