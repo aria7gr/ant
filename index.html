@@ -3,28 +3,30 @@
   ant_v1.0.html
 
   v1.0  2026.03.20  初回リリース：兵隊アリ孵化逆算・スライダー式リワード設定・レベル記憶・日英対応
+  v1.1  2026.03.21  チャトラ「見やすい」テーマに変更・リワード手入力にK/Mトグル+クリアボタン追加・「必要孵化数(予想)」に変更
 -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Ant Numeric Tool</title>
+<title>Ant Numeric Tool [ant]</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐜</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:        #111113;
-  --surface:   #1a1a1f;
-  --surface2:  #242428;
-  --surface3:  #2e2e34;
-  --border:    #3a3a44;
-  --text:      #e8e4f0;
-  --text-dim:  #8a8a9a;
+  --bg:        #1a1a2e;
+  --surface:   #242440;
+  --surface2:  #2e2e50;
+  --surface3:  #383860;
+  --border:    #4a4a70;
+  --text:      #f0ece0;
+  --text-dim:  #b0aec0;
   --text-bright: #ffffff;
-  --accent:    #c8b8e8;
-  --green:     #a0d0c0;
-  --r3-color:  #e89878;
+  --accent:    #f0d060;
+  --accent2:   #ffe080;
+  --green:     #60e0a0;
+  --r3-color:  #ff9060;
   --font-main: 'Noto Sans JP', sans-serif;
   --font-mono: 'Roboto Mono', monospace;
   --sz-sm:  12px;
@@ -312,7 +314,7 @@ body {
 <div class="header">
   <div class="header-left">
     <span class="header-icon">🐜</span>
-    <div class="header-title" id="h-title">Ant Numeric Tool</div>
+    <div class="header-title" id="h-title">Ant Numeric Tool [ant]</div>
   </div>
   <button class="lang-btn" id="lang-btn" onclick="toggleLang()">EN</button>
 </div>
@@ -332,7 +334,12 @@ body {
     <div class="manual-row">
       <span class="manual-label" data-key="manual_input">手入力</span>
       <input class="field-input" id="reward-manual" type="number" min="0"
-        placeholder="例: 5200000" oninput="onManualReward()">
+        placeholder="例: 5.2" oninput="onManualReward()">
+      <div class="km-toggle">
+        <button class="km-btn" id="rm-k" onclick="setRewardUnit('K')">K</button>
+        <button class="km-btn active" id="rm-m" onclick="setRewardUnit('M')">M</button>
+      </div>
+      <button class="clear-btn" onclick="clearRewardManual()">✕</button>
     </div>
   </div>
 
@@ -385,7 +392,7 @@ body {
 
   <!-- 結果 -->
   <div class="result-card">
-    <div class="result-label" data-key="required">必要孵化数</div>
+    <div class="result-label" data-key="required">必要孵化数(予想)</div>
     <div class="result-num" id="result-num">—</div>
     <div class="result-unit" data-key="units" id="result-unit">匹</div>
     <div class="result-sub" id="result-sub"></div>
@@ -393,7 +400,7 @@ body {
 
 </div>
 
-<div class="version-label">Mar 20 '26 🐜 v1.0</div>
+<div class="version-label">Mar 21 '26 🐜 v1.1</div>
 
 <script>
 // ============================================================
@@ -406,7 +413,7 @@ const LANG = {
     level_setting: '兵隊アリ レベル',
     pts_per_unit:  'pt / 匹',
     manual_input:  '手入力',
-    required:      '必要孵化数',
+    required:      '必要孵化数(予想)',
     units:         '匹',
     achieved:      '達成済み',
     remain:        '残り',
@@ -419,11 +426,11 @@ const LANG = {
     level_setting: 'Soldier Ant Level',
     pts_per_unit:  'pt / ant',
     manual_input:  'Manual',
-    required:      'Required Hatches',
+    required:      'Required Hatches (est.)',
     units:         'ants',
     achieved:      'Achieved!',
     remain:        'Remaining',
-    lang_btn:      '日',
+    lang_btn:      'JP',
     progress_of:   '/',
   }
 };
@@ -441,6 +448,7 @@ const SNAP_VALUES = [
 // ============================================================
 let lang = 'ja';
 let ptsUnit = 'M';
+let rewardUnit = 'M';
 let rewardTarget = 5200000;
 
 // ============================================================
@@ -509,17 +517,27 @@ function onSliderInput() {
 }
 
 function onManualReward() {
-  const v = parseInt(document.getElementById('reward-manual').value);
-  if (!isNaN(v) && v > 0) {
-    setRewardTarget(v);
-    let closest = 0, minDiff = Infinity;
-    SNAP_VALUES.forEach((sv, i) => {
-      const diff = Math.abs(sv - v);
-      if (diff < minDiff) { minDiff = diff; closest = i; }
-    });
-    document.getElementById('reward-slider').value = closest;
-    updateTickHighlight();
-  }
+  const raw = parseFloat(document.getElementById('reward-manual').value);
+  if (isNaN(raw) || raw <= 0) return;
+  const v = rewardUnit === 'M' ? Math.round(raw * 1000000) : Math.round(raw * 1000);
+  setRewardTarget(v);
+  let closest = 0, minDiff = Infinity;
+  SNAP_VALUES.forEach((sv, i) => {
+    const diff = Math.abs(sv - v);
+    if (diff < minDiff) { minDiff = diff; closest = i; }
+  });
+  document.getElementById('reward-slider').value = closest;
+  updateTickHighlight();
+}
+
+function setRewardUnit(unit) {
+  rewardUnit = unit;
+  document.getElementById('rm-k').classList.toggle('active', unit === 'K');
+  document.getElementById('rm-m').classList.toggle('active', unit === 'M');
+}
+
+function clearRewardManual() {
+  document.getElementById('reward-manual').value = '';
 }
 
 function setRewardTarget(val) {
