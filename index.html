@@ -4,7 +4,7 @@
 
   v1.0    2026.03.20  初回リリース：兵隊アリ孵化逆算・スライダー式リワード設定・レベル記憶・日英対応
   v1.1    2026.03.21  チャトラ「見やすい」テーマに変更・リワード手入力にK/Mトグル+クリアボタン追加・「必要孵化数(予想)」に変更
-  v1.1.1  2026.03.21  [ant]表記追加・lang_btnをJPに・「予測」に変更・残り必要ポイント表示・アクティブ目盛り強調
+  v1.2.1  2026.03.23  iOSホーム画面アイコン（apple-touch-icon）対応
 -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -13,6 +13,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Ant Numeric Tool [ant]</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐜</text></svg>">
+<script>
+// apple-touch-icon（iOS ホーム画面アイコン）をCanvasで生成
+(function() {
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 180; canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1a1a2e';
+    ctx.fillRect(0, 0, 180, 180);
+    ctx.font = '120px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🐜', 90, 95);
+    const link = document.createElement('link');
+    link.rel = 'apple-touch-icon';
+    link.href = canvas.toDataURL('image/png');
+    document.head.appendChild(link);
+  } catch(e) {}
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -335,7 +355,7 @@ body {
     <div class="manual-row">
       <span class="manual-label" data-key="manual_input">手入力</span>
       <input class="field-input" id="reward-manual" type="number" min="0"
-        placeholder="例: 5.2" oninput="onManualReward()">
+        placeholder="例: 5.2" oninput="onManualRewardInput()" onblur="onManualReward()">
       <div class="km-toggle">
         <button class="km-btn" id="rm-k" onclick="setRewardUnit('K')">K</button>
         <button class="km-btn active" id="rm-m" onclick="setRewardUnit('M')">M</button>
@@ -374,7 +394,7 @@ body {
     <div class="card-title" data-key="level_setting">兵隊アリ レベル</div>
     <select class="level-select" id="level-select" onchange="onLevelChange()">
       <option value="215">Lv 10 — 215 pt / 匹</option>
-      <option value="190">Lv 9 — 190 pt / 匹</option>
+      <option value="190" selected>Lv 9 — 190 pt / 匹</option>
       <option value="165">Lv 8 — 165 pt / 匹</option>
       <option value="140">Lv 7 — 140 pt / 匹</option>
       <option value="115">Lv 6 — 115 pt / 匹</option>
@@ -402,7 +422,7 @@ body {
 
 </div>
 
-<div class="version-label">Mar 21 '26 🐜 v1.1.1</div>
+<div class="version-label">Mar 23 '26 🐜 v1.2.1</div>
 
 <script>
 // ============================================================
@@ -518,7 +538,19 @@ function onSliderInput() {
   document.getElementById('reward-manual').value = '';
 }
 
+function onManualRewardInput() {
+  // 入力中はリワード値と計算だけ更新、スライダーは動かさない
+  const raw = parseFloat(document.getElementById('reward-manual').value);
+  if (isNaN(raw) || raw <= 0) return;
+  const v = rewardUnit === 'M' ? Math.round(raw * 1000000) : Math.round(raw * 1000);
+  rewardTarget = v;
+  document.getElementById('reward-val').textContent = fmtNum(v);
+  try { localStorage.setItem('ant_reward_target', v); } catch(e) {}
+  calcAll();
+}
+
 function onManualReward() {
+  // フォーカスアウト時にスライダーを最近接値に移動
   const raw = parseFloat(document.getElementById('reward-manual').value);
   if (isNaN(raw) || raw <= 0) return;
   const v = rewardUnit === 'M' ? Math.round(raw * 1000000) : Math.round(raw * 1000);
