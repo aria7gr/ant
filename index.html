@@ -4,7 +4,7 @@
 
   v1.0    2026.03.20  初回リリース：兵隊アリ孵化逆算・スライダー式リワード設定・レベル記憶・日英対応
   v1.1    2026.03.21  チャトラ「見やすい」テーマに変更・リワード手入力にK/Mトグル+クリアボタン追加・「必要孵化数(予想)」に変更
-  v1.2.1  2026.03.23  iOSホーム画面アイコン（apple-touch-icon）対応
+  v1.2.2  2026.04.12  全入力欄にinputmode=decimal・autocomplete=off追加
 -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -355,7 +355,7 @@ body {
     <div class="manual-row">
       <span class="manual-label" data-key="manual_input">手入力</span>
       <input class="field-input" id="reward-manual" type="number" min="0"
-        placeholder="例: 5.2" oninput="onManualRewardInput()" onblur="onManualReward()">
+        placeholder="例: 5.2" inputmode="decimal" autocomplete="off" oninput="onManualRewardInput()" onblur="onManualReward()">
       <div class="km-toggle">
         <button class="km-btn" id="rm-k" onclick="setRewardUnit('K')">K</button>
         <button class="km-btn active" id="rm-m" onclick="setRewardUnit('M')">M</button>
@@ -369,7 +369,7 @@ body {
     <div class="card-title" data-key="current_pts">現在ポイント</div>
     <div class="pts-row">
       <input class="field-input" id="current-pts" type="number" min="0" step="any"
-        placeholder="0" oninput="calcAll()">
+        placeholder="0" inputmode="decimal" autocomplete="off" oninput="calcAll()">
       <div class="km-toggle">
         <button class="km-btn" id="km-k" onclick="setPtsUnit('K')">K</button>
         <button class="km-btn active" id="km-m" onclick="setPtsUnit('M')">M</button>
@@ -408,7 +408,7 @@ body {
     <div class="manual-pts-row" id="manual-pts-row" style="display:none;">
       <span class="manual-label" data-key="pts_per_unit">pt / 匹</span>
       <input class="field-input" id="manual-pts" type="number" min="1"
-        placeholder="例: 215" oninput="calcAll()" style="max-width:140px;">
+        placeholder="例: 215" inputmode="decimal" autocomplete="off" oninput="calcAll()" style="max-width:140px;">
     </div>
   </div>
 
@@ -422,7 +422,7 @@ body {
 
 </div>
 
-<div class="version-label">Mar 23 '26 🐜 v1.2.1</div>
+<div class="version-label">Apr 12 '26 🐜 v1.2.2</div>
 
 <script>
 // ============================================================
