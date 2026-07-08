@@ -4,7 +4,7 @@
 
   v1.0    2026.03.20  初回リリース：兵隊アリ孵化逆算・スライダー式リワード設定・レベル記憶・日英対応
   v1.1    2026.03.21  チャトラ「見やすい」テーマに変更・リワード手入力にK/Mトグル+クリアボタン追加・「必要孵化数(予想)」に変更
-  v1.2.2  2026.04.12  全入力欄にinputmode=decimal・autocomplete=off追加
+  v1.3    2026.05.10  リワード目標スナップ値を実用6値に変更（80K/100K/640K/800K/4.24M/5.2M）
 -->
 <!DOCTYPE html>
 <html lang="ja">
@@ -346,10 +346,10 @@ body {
   <div class="card">
     <div class="card-title" data-key="reward_target">リワード目標</div>
     <input type="range" class="snap-slider" id="reward-slider"
-      min="0" max="9" step="1" value="6" oninput="onSliderInput()">
+      min="0" max="5" step="1" value="4" oninput="onSliderInput()">
     <div class="snap-ticks" id="snap-ticks"></div>
     <div>
-      <span class="reward-val" id="reward-val">5.2M</span>
+      <span class="reward-val" id="reward-val">4.24M</span>
       <span class="reward-unit">pt</span>
     </div>
     <div class="manual-row">
@@ -422,7 +422,7 @@ body {
 
 </div>
 
-<div class="version-label">Apr 12 '26 🐜 v1.2.2</div>
+<div class="version-label">May 10 '26 🐜 v1.3</div>
 
 <script>
 // ============================================================
@@ -461,8 +461,7 @@ const LANG = {
 // スナップ値
 // ============================================================
 const SNAP_VALUES = [
-  640000, 800000, 2300000, 4000000, 4240000,
-  4800000, 5200000, 15200000, 15300000, 16300000
+  80000, 100000, 640000, 800000, 4240000, 5200000
 ];
 
 // ============================================================
@@ -471,7 +470,7 @@ const SNAP_VALUES = [
 let lang = 'ja';
 let ptsUnit = 'M';
 let rewardUnit = 'M';
-let rewardTarget = 5200000;
+let rewardTarget = 4240000;
 
 // ============================================================
 // フォーマット
